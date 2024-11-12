@@ -30,9 +30,11 @@ class Map extends Field implements MapOptions
         'zoomOffset'           => -1,
         'tileSize'             => 512,
         'detectRetina'         => true,
+        'rangeSelectField'     => 'distance',
         'minZoom'              => 0,
         'maxZoom'              => 28,
         'zoom'                 => 15,
+        'clickable'            => false,
         'markerColor'          => '#3b82f6',
         'liveLocation'         => false,
         'bounds'               => false,
@@ -86,9 +88,13 @@ class Map extends Field implements MapOptions
      */
     public function getMapConfig(): string
     {
+        $statePath = $this->getStatePath();
+        $lastDotPosition = strrpos($statePath, '.');
+        $rangeSelectField = substr($statePath, 0, $lastDotPosition + 1) . $this->mapConfig['rangeSelectField'];
         return json_encode(
             array_merge($this->mapConfig, [
-                'statePath' => $this->getStatePath(),
+                'statePath' => $statePath,
+                'rangeSelectField' => $rangeSelectField,
                 'controls' => array_merge($this->controls, $this->extraControls)
             ])
         );
@@ -104,6 +110,16 @@ class Map extends Field implements MapOptions
         return implode(';', $this->extraStyle);
     }
 
+    /**
+     * Determines if the user can click to place the marker on the map.
+     * @param bool $clickable
+     * @return $this
+     */
+    public function clickable(bool $clickable): self
+    {
+        $this->mapConfig['clickable'] = $clickable;
+        return $this;
+    }
 
     /**
      * Determine if user can drag map around or not.
@@ -236,6 +252,19 @@ class Map extends Field implements MapOptions
     public function tilesUrl(string $url): self
     {
         $this->mapConfig['tilesUrl'] = $url;
+        return $this;
+    }
+
+
+    /**
+     * Use the value of another field on the form for the range of the
+     * circle surrounding the marker
+     * @param string $rangeSelectField,
+     * @param return $this
+     **/
+    public function rangeSelectField(string $rangeSelectField): self
+    {
+        $this->mapConfig['rangeSelectField'] = $rangeSelectField;
         return $this;
     }
 

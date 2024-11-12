@@ -9,7 +9,9 @@ document.addEventListener('DOMContentLoaded', () => {
             map: null,
             tile: null,
             marker: null,
+            rangeCircle: null,
             drawItems: null,
+            rangeSelectField: null,
 
             createMap: function (el) {
                 const that = this;
@@ -38,6 +40,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     this.map.dragging.disable();
                 }
 
+                if(config.clickable)
+                {
+                    this.map.on('click', function(e) {
+                        that.setCoordinates(e.latlng);
+                    });
+                }
+
                 this.tile = L.tileLayer(config.tilesUrl, {
                     attribution: config.attribution,
                     minZoom: config.minZoom,
@@ -60,7 +69,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         draggable: false,
                         autoPan: true
                     }).addTo(this.map);
-                    this.map.on('move', () => this.marker.setLatLng(this.map.getCenter()));
+                    this.setMarkerRange();
+                    if(!config.clickable)
+                    {
+                        this.map.on('move', () => this.setCoordinates(this.map.getCenter()));
+                    }
                 }
 
                 this.map.on('moveend', () => setTimeout(() => this.updateLocation(), 500));
@@ -262,6 +275,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 return location;
             },
 
+            setCoordinates: function (coords) {
+
+                $wire.set(config.statePath, {
+                    ...$wire.get(config.statePath),
+                    lat: coords.lat,
+                    lng: coords.lng
+                }, false);
+
+                if (config.liveLocation.send) {
+                    $wire.$refresh();
+                }
+                this.updateMarker();
+                return coords;
+            },
+
             attach: function (el) {
                 this.createMap(el);
                 const observer = new IntersectionObserver(entries => {
@@ -306,16 +334,34 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.map.getContainer().appendChild(locationButton);
             },
 
+            setMarkerRange: function () {
+                distance=parseInt(this.rangeSelectField.value || 0 ) ;
+                if (this.rangeCircle) {
+                    this.rangeCircle.setLatLng(this.getCoordinates()).setRadius(distance);
+                } else {
+                    this.rangeCircle = L.circle(this.getCoordinates(), {
+                        color: 'blue',
+                        fillColor: '#f03',
+                        fillOpacity: 0.5,
+                        radius: distance // The radius in meters
+                    }).addTo(this.map);
+                }
+            },
+
             init: function() {
                 this.$wire = $wire;
                 this.config = config;
                 this.state = state;
+                this.rangeSelectField = document.getElementById(config.rangeSelectField || 'data.distance');
+                let that=this
+                this.rangeSelectField.addEventListener('change', function () {that.updateMarker(); });
                 $wire.on('refreshMap', this.refreshMap.bind(this));
             },
 
             updateMarker: function() {
                 if (config.showMarker) {
                     this.marker.setLatLng(this.getCoordinates());
+                    this.setMarkerRange();
                     setTimeout(() => this.updateLocation(), 500);
                 }
             },
