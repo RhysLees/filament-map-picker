@@ -148,14 +148,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     const existingGeoJson = this.getGeoJson();
                     if (existingGeoJson) {
                             this.drawItems = L.geoJSON(existingGeoJson, {
-                                pointToLayer: (feature, latlng) => {
-                                    return L.circleMarker(latlng, {
-                                        radius: 15,
-                                        color: '#3388ff',
-                                        fillColor: '#3388ff',
-                                        fillOpacity: 0.6
-                                    });
-                                },
+                                // pointToLayer: (feature, latlng) => {
+                                //     return L.circleMarker(latlng, {
+                                //         radius: 15,
+                                //         color: '#3388ff',
+                                //         fillColor: '#3388ff',
+                                //         fillOpacity: 0.6
+                                //     });
+                                // },
                                 // style: function(feature) {
                                 //     if (feature.geometry.type === 'Polygon') {
                                 //         return {
