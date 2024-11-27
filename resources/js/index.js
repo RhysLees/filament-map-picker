@@ -156,16 +156,16 @@ document.addEventListener('DOMContentLoaded', () => {
                                         fillOpacity: 0.6
                                     });
                                 },
-                                style: function(feature) {
-                                    if (feature.geometry.type === 'Polygon') {
-                                        return {
-                                            color: config.geoMan.color || "#3388ff",
-                                            fillColor: config.geoMan.filledColor || 'blue',
-                                            weight: 2,
-                                            fillOpacity: 0.4
-                                        };
-                                    }
-                                },
+                                // style: function(feature) {
+                                //     if (feature.geometry.type === 'Polygon') {
+                                //         return {
+                                //             color: config.geoMan.color || "#3388ff",
+                                //             fillColor: config.geoMan.filledColor || 'blue',
+                                //             weight: 2,
+                                //             fillOpacity: 0.4
+                                //         };
+                                //     }
+                                // },
                                 onEachFeature: (feature, layer) => {
 
                                     if (feature.geometry.type === 'Polygon') {
@@ -206,7 +206,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
               }
             },
-
             updateGeoJson: function() {
                 try {
                     const geoJsonData = this.drawItems.toGeoJSON();
